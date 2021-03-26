@@ -2,6 +2,7 @@ FROM pytorch/pytorch:latest
 
 # entrypointを実行するのに必要かも
 RUN apt-get update && apt-get -y install gosu
+# vi tree less 
 
 # Install required libraries
 RUN conda config --add channels pytorch \
@@ -31,6 +32,8 @@ RUN useradd -m -u ${NEW_UID} ${NEW_USER}
 
 # 作業ディレクトリの作成
 ARG NEW_USER_HOME=/home/${NEW_USER}
+RUN mkdir ${NEW_USER_HOME}/workspace
+RUN chown -R ${NEW_USER} ${NEW_USER_HOME}/workspace
 
 # configファイルのコピー
 COPY conf/jupyter_notebook_config.py ${NEW_USER_HOME}
