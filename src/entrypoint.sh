@@ -1,11 +1,9 @@
 #!/bin/bash
 
-# USER_ID=${LOCAL_UID:-9001}
-# GROUP_ID=${LOCAL_GID:-9001}
+# git branch
+git_branch() {
+  echo $(git branch --no-color 2>/dev/null | sed -ne "s/^\* \(.*\)$/\1/p")
+}
 
-# echo "Starting with UID : $USER_ID, GID: $GROUP_ID"
-
-# # usermod -u $USER_ID -o -m developer
-# # groupmod -g $GROUP_ID developer
-
-# echo "Finish"
+# display
+PS1='--\n\[\033[37m\]\u\[\033[0m\]\[\033[32m\]\w\[\033[0m\]:\[\033[35m\]$(git_branch)\[\033[0m\] $ '

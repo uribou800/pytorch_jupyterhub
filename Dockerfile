@@ -1,8 +1,21 @@
 FROM pytorch/pytorch:latest
 
-# entrypointを実行するのに必要かも
-RUN apt-get update && apt-get -y install gosu
-# vi tree less も入れたい
+# install binary tools
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+    git \
+    tree \
+    less \
+    vim \
+    curl \
+    wget \
+ && apt-get autoremove -y \
+ && apt-get clean \
+ && rm -rf \
+    /var/lib/apt/lists/* \
+    /var/cache/apt/* \
+    /usr/local/src/* \
+    /tmp/*
 
 # Install required libraries
 RUN conda config --add channels pytorch \
@@ -35,12 +48,17 @@ RUN usermod -g ${LOCAL_GID} ${NEW_USER}
 
 # 作業ディレクトリの作成
 ARG NEW_USER_HOME=/home/${NEW_USER}
-# RUN mkdir ${NEW_USER_HOME}/workspace
-# RUN chown ${NEW_USER} -R ${NEW_USER_HOME}
 
-# configファイルのコピー
-COPY conf/jupyter_notebook_config.py ${NEW_USER_HOME}
+# 各ファイルのコピー
+COPY conf/jupyter_notebook_config.py ${NEW_USER_HOME}/.jupyter/
+COPY src/entrypoint.sh ${NEW_USER_HOME}
 RUN chown ${LOCAL_UID}:${LOCAL_GID} -R ${NEW_USER_HOME}
+
+# ログインスクリプトをbashrcで実行
+RUN echo '' >> ${NEW_USER_HOME}/.bashrc
+RUN echo '# run entrypoint' >> ${NEW_USER_HOME}/.bashrc
+RUN echo 'source entrypoint.sh' >> ${NEW_USER_HOME}/.bashrc
+
 
 # 作成したユーザーに切り替える
 USER ${NEW_UID}
